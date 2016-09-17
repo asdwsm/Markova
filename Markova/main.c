@@ -19,16 +19,29 @@ struct Entry {
 };
 
 struct Bucket {
-	struct Entry entries[bucketSize];
+	struct Entry **entries;
 };
 
 struct HashTable {
-	struct Bucket buckets[bucketCount];
+	struct Bucket **buckets;
 };
 
 //return the size of the bucket;
 int hash_size(struct HashTable table) {
 	return bucketSize;
+}
+
+struct HashTable *create_hash_table(void) {
+	struct HashTable *table = malloc(sizeof(struct HashTable));
+	
+	table->buckets = malloc(sizeof(struct Bucket) * bucketCount);
+	
+	for (int i = 0; i < bucketCount; i++) {
+		struct Bucket *bucket = table->buckets[i];
+		bucket->entries = malloc(sizeof(struct Entry) * bucketSize);
+	}
+	
+	return table;
 }
 
 //hash fucntion
@@ -50,7 +63,7 @@ void hash_insert(struct HashTable *table, char *key, void *entry) {
 	
 	int hash = hashKey(key);
 	
-	struct Bucket bucket = table->buckets[hash];
+	struct Bucket *bucket = table->buckets[hash];
 	
 	// insert entry into bucket where there is space
 	
@@ -81,7 +94,7 @@ void *hash_retrive(struct HashTable *table, char *key) {
 	
 	int hash = hashKey(key);
 	
-	struct Bucket bucket = table->buckets[hash];
+	struct Bucket *bucket = table->buckets[hash];
 	
 	// find entry in bucket which matches key = word
 	
@@ -101,7 +114,7 @@ void *hash_retrive(struct HashTable *table, char *key) {
 //Testing hashtable
 int main(int argc, const char *argv[]) {
 	char *key = "happy";
-	struct HashTable *table = malloc(sizeof(struct HashTable));
+	struct HashTable *table = create_hash_table();
 	hash_insert(table, key, NULL);
 	
     return 0;
