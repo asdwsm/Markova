@@ -19,29 +19,16 @@ struct Entry {
 };
 
 struct Bucket {
-	struct Entry **entries;
+	struct Entry entries[bucketSize];
 };
 
 struct HashTable {
-	struct Bucket **buckets;
+	struct Bucket buckets[bucketCount];
 };
 
 //return the size of the bucket;
 int hash_size(struct HashTable table) {
 	return bucketSize;
-}
-
-struct HashTable *create_hash_table(void) {
-	struct HashTable *table = malloc(sizeof(struct HashTable));
-	
-	table->buckets = malloc(sizeof(struct Bucket) * bucketCount);
-	
-	for (int i = 0; i < bucketCount; i++) {
-		struct Bucket *bucket = table->buckets[i];
-		bucket->entries = malloc(sizeof(struct Entry) * bucketSize);
-	}
-	
-	return table;
 }
 
 //hash fucntion
@@ -63,37 +50,16 @@ void hash_insert(struct HashTable *table, char *key, void *entry) {
 	
 	int hash = hashKey(key);
 	
-	struct Bucket *bucket = table->buckets[hash];
+	struct Bucket *bucket = &table->buckets[hash];
 	
 	// insert entry into bucket where there is space
 	int loc = 0;
-	while (bucket.entries[loc].word != NULL && bucket.entries[loc].word != NULL) {
+	while (bucket->entries[loc].word != NULL && bucket->entries[loc].word != NULL) {
 		loc++;
 	}
 	printf("%d\n",loc);
-	bucket.entries[loc].word = key;
-	bucket.entries[loc].pairs = entry;
-	
-//	
-//	int position = hash(key);
-//	int inserted = 0;
-//	
-//	while (position < hash_size(table)){
-//		
-//		if (table.bucket[position].word == NULL) {
-//			table.bucket[position].word = key;
-//			inserted = 1;
-//		}
-//		else {
-//			position++;
-//		}
-//	}
-//	//if not inserted create a new bucket
-//	if (inserted == 0){
-//		struct Bucket newBucket[bucketSize];
-//		newBucket[position].word = key;
-////		table.bucket[bucketSize].next = newBucket;
-//	}
+	bucket->entries[loc].word = key;
+	bucket->entries[loc].pairs = entry;
 }
 
 //retrieve function
@@ -101,26 +67,16 @@ void *hash_retrieve(struct HashTable *table, char *key) {
 	
 	int hash = hashKey(key);
 	
-	struct Bucket *bucket = table->buckets[hash];
+	struct Bucket *bucket = &table->buckets[hash];
 	
 	// find entry in bucket which matches key = word
-	int location = 0;
+	void *find = NULL;
 	for (int i = 0; i < bucketSize; i++) {
-		if (key == bucket.entries[i].word) {
-			location = i;
+		if (strcmp(key, bucket->entries[i].word) == 0) {
+			find = bucket->entries[i].word;
 		}
 	}
-//	char *key;
-//	if (table.bucket[position].word != NULL) {
-//		key = table.bucket[position].word;
-//	}
-//	else if(table.bucket[bucketSize].next == NULL)
-//		key = "Item does not exist";
-//	else{
-////		key = table.bucket[bucketSize].next->word;
-//	}
-//	return key;
-	return NULL;
+	return find;
 }
 
 //Testing hashtable
@@ -129,7 +85,7 @@ int main(int argc, const char *argv[]) {
 	struct HashTable *table = malloc(sizeof(struct HashTable));
 	hash_insert(table, key, malloc(1));
 	printf("%d\n", hashKey(key));
-	printf(table->buckets[87].entries[0].word);
+	printf("%s\n", table->buckets[87].entries[0].word);
 	
-    return 0;
+	return 0;
 }
