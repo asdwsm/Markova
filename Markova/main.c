@@ -9,83 +9,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "hash_table.h"
+#include "hash_table.c"
 
-const int bucketSize = 100;
-const int bucketCount = 100;
 
-struct Entry {
-	char *word;
-	void *pairs;
-};
-
-struct Bucket {
-	struct Entry entries[bucketSize];
-};
-
-struct HashTable {
-	struct Bucket buckets[bucketCount];
-};
-
-//return the size of the bucket;
-int hash_size(struct HashTable table) {
-	return bucketSize;
-}
-
-//hash fucntion
-int hashKey(char *key) {
+char *randomString(int len) {
+	char *buf = malloc(sizeof(char) * (len + 1));
 	
-	int sum = 5381;
-	
-	for (int idx = 0; idx < strlen(key); idx++) {
-		sum = ((sum << 5) + sum) + key[idx];
+	for (int i = 0; i < len; i++) {
+		buf[i] = arc4random_uniform(25) + 0x41;
 	}
 	
-	// probably bad hash function
-	
-	return (sum % bucketCount);
+	buf[len] = 0;
+	return buf;
 }
 
-//insert function
-void hash_insert(struct HashTable *table, char *key, void *entry) {
+void test_hash_table(){
 	
-	int hash = hashKey(key);
-	
-	struct Bucket *bucket = &table->buckets[hash];
-	
-	// insert entry into bucket where there is space
-	int loc = 0;
-	while (bucket->entries[loc].word != NULL && bucket->entries[loc].word != NULL) {
-		loc++;
-	}
-	printf("%d\n",loc);
-	bucket->entries[loc].word = key;
-	bucket->entries[loc].pairs = entry;
-}
-
-//retrieve function
-void *hash_retrieve(struct HashTable *table, char *key) {
-	
-	int hash = hashKey(key);
-	
-	struct Bucket *bucket = &table->buckets[hash];
-	
-	// find entry in bucket which matches key = word
-	void *find = NULL;
-	for (int i = 0; i < bucketSize; i++) {
-		if (strcmp(key, bucket->entries[i].word) == 0) {
-			find = bucket->entries[i].word;
-		}
-	}
-	return find;
-}
-
-//Testing hashtable
-int main(int argc, const char *argv[]) {
-	char *key = "happy";
 	struct HashTable *table = malloc(sizeof(struct HashTable));
-	hash_insert(table, key, malloc(1));
-	printf("%d\n", hashKey(key));
-	printf("%s\n", table->buckets[87].entries[0].word);
-	
+	for (int i = 0; i < 1000; i++) {
+		hash_insert(table, randomString(i), malloc(1));
+	}
+}
+
+
+int main(int argc, const char *argv[]) {
+	test_hash_table();
 	return 0;
 }

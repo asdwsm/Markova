@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E26E19181D90E5E900A90634 /* hash_table.c in Sources */ = {isa = PBXBuildFile; fileRef = E26E19161D90E5E900A90634 /* hash_table.c */; };
 		E2BC75831D8C486500AA1AAE /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E2BC75821D8C486500AA1AAE /* main.c */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E26E19161D90E5E900A90634 /* hash_table.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hash_table.c; sourceTree = "<group>"; };
+		E26E19171D90E5E900A90634 /* hash_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash_table.h; sourceTree = "<group>"; };
 		E2BC757F1D8C486500AA1AAE /* Markova */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Markova; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2BC75821D8C486500AA1AAE /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -57,6 +60,8 @@
 		E2BC75811D8C486500AA1AAE /* Markova */ = {
 			isa = PBXGroup;
 			children = (
+				E26E19171D90E5E900A90634 /* hash_table.h */,
+				E26E19161D90E5E900A90634 /* hash_table.c */,
 				E2BC75821D8C486500AA1AAE /* main.c */,
 			);
 			path = Markova;
@@ -118,6 +123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E26E19181D90E5E900A90634 /* hash_table.c in Sources */,
 				E2BC75831D8C486500AA1AAE /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
