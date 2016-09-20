@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "hash_table.h"
-#include "hash_table.c"
-
 
 char *randomString(int len) {
 	char *buf = malloc(sizeof(char) * (len + 1));

@@ -11,9 +11,6 @@
 
 #include <stdio.h>
 
-const int bucketSize = 100;
-const int bucketCount = 100;
-
 struct Entry {
 	char *word;
 	void *pairs;
@@ -26,19 +23,6 @@ struct Bucket {
 struct HashTable {
 	struct Bucket *buckets;
 };
-
-struct HashTable *create_hash_table(void) {
-	struct HashTable *table = malloc(sizeof(struct HashTable));
-	
-	table->buckets = malloc(sizeof(struct Bucket) * bucketCount);
-	
-	for (int i = 0; i < bucketCount; i++) {
-		struct Bucket *bucket = &table->buckets[i];
-		bucket->entries = malloc(sizeof(struct Entry) * bucketSize);
-	}
-	
-	return table;
-}
 
 void hash_insert(struct HashTable *table, char *key, void *entry);
 void *hash_retrieve(struct HashTable *table, char *key);
