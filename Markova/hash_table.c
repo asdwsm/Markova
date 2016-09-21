@@ -25,8 +25,7 @@ struct HashTable *create_hash_table(void) {
 		table->buckets[i] = malloc(sizeof(struct Bucket));
 		
 		struct Bucket *bucket = table->buckets[i];
-		
-		bucket->entries = malloc(sizeof(struct Entry) * bucketSize);
+		bucket->entries = malloc(sizeof(struct Entry *) * bucketSize);
 	}
 	
 	return table;
@@ -48,7 +47,7 @@ int hashKey(char *key) {
 }
 
 //insert function
-void hash_insert(struct HashTable *table, char *key, void *entry) {
+void hash_insert(struct HashTable *table, char *key, void *data) {
 	
 	int hash = hashKey(key);
 	
@@ -59,8 +58,13 @@ void hash_insert(struct HashTable *table, char *key, void *entry) {
 	while (bucket->entries[loc] != NULL) {
 		loc++;
 	}
-//	bucket->entries[loc].word = key;
-//	bucket->entries[loc].pairs = entry;
+	
+	struct Entry *entry = malloc(sizeof(struct Entry));
+	
+	entry->word = key;
+	entry->pairs = data;
+	
+	bucket->entries[loc] = entry;
 }
 
 //retrieve function
