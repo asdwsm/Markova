@@ -11,9 +11,14 @@
 
 #include <stdio.h>
 
+struct associatedWord {
+	char *word;
+	int numCount;
+};
+
 struct Entry {
 	char *word;
-	void *pairs;
+	struct associatedWord *a[100];
 };
 
 struct Bucket {
@@ -25,8 +30,8 @@ struct HashTable {
 };
 
 struct HashTable *create_hash_table(void);
-void hash_insert(struct HashTable *table, char *key, void *entry);
-void *hash_retrieve(struct HashTable *table, char *key);
+void hash_insert(struct HashTable *table, char *key, char *data);
+int hash_retrieve(struct HashTable *table, char *key);
 
 
 #endif /* hash_table_h */

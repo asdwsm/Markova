@@ -26,10 +26,24 @@ void test_hash_table(){
 	
 	struct HashTable *table = create_hash_table();
 	
-	hash_insert(table, "hello", malloc(1));
+	hash_insert(table, "hello", "Max");
+	hash_insert(table, "hello", "Tom");
+	hash_insert(table, "hello", "Max");
+	hash_insert(table, "good", "morning");
+	hash_insert(table, "good", "afternoon");
+	
 //	for (int i = 0; i < 1000; i++) {
 //		hash_insert(table, randomString(i), malloc(1));
 //	}
+//	printf("%d\n", hashKey("good"));
+	
+	printf("%s\n", table->buckets[37]->entries[0]->a[0]->word);
+	printf("%s\n", table->buckets[37]->entries[0]->a[1]->word);
+	printf("%s\n", table->buckets[58]->entries[0]->a[0]->word);
+	printf("%s\n", table->buckets[58]->entries[0]->a[1]->word);
+
+//	printf("%d\n", hash_retrieve(table, "hello"));
+	
 }
 
 void test_hash_function() {
@@ -41,13 +55,15 @@ void test_hash_function() {
 		free(randString);
 	
 	}
-	printf("avg: %d\r\n", sum / 1000);
-	// should be around 50, which is pretty good.
+	
+	//printf("avg: %d\r\n", sum / 1000);
+	//should be around 50, which is pretty good.
 }
 
 
 int main(int argc, const char *argv[]) {
 	test_hash_table();
-	test_hash_function();
+//	test_hash_function();
+	
 	return 0;
 }
