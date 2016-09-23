@@ -48,46 +48,44 @@ int hashKey(char *key) {
 }
 
 //insert function
-void hash_insert(struct HashTable *table, char *key, struct associatedWord *assW) {
+void hash_insert(struct HashTable *table, struct Entry *entry) {
 	
-	int hash = hashKey(key);
+	int hash = hashKey(entry->word);
 	
 	struct Bucket *bucket = table->buckets[hash];
 	
 	//insert entry into bucket where there is space
 	int loc = 0;
 	while (bucket->entries[loc] != NULL) {
-		if (strcmp(bucket->entries[loc]->word, key) == 0) {
+		if (strcmp(bucket->entries[loc]->word, entry->word) == 0) {
 			break;
 		}
 		loc++;
 	}
-	//insert condition: no current entry exist, create a new one
+
 	if (bucket->entries[loc] == NULL) {
-		struct Entry *entry = malloc(sizeof(struct Entry));
-		entry->word = key;
-		
-		//check if the data already exist
-			for (int i = 0; i < 100; i++) {
-				if (entry->a[i] == NULL || strcmp(bucket->entries[loc]->a[i]->word, assW->word) == 0) {
-					entry->a[i] = assW;
-					i = 100;
-				}
-			}
 		bucket->entries[loc] = entry;
-		
+	
 	}
-	//insert condition: there is already an entry exist
-	else {
-		bucket->entries[loc]->word = key;
-		//check if the data already exist
-			for (int i = 0; i < 100; i++) {
-				if (bucket->entries[loc]->a[i] == NULL || strcmp(bucket->entries[loc]->a[i]->word, assW->word) == 0) {
-					bucket->entries[loc]->a[i] = assW;
-					i = 100;
-				}
+}
+
+//retrieve function
+struct Entry *hash_retrieve(struct HashTable *table, char *key){
+	
+	struct Entry *entry = malloc(sizeof(struct Entry));
+	
+	int hash = hashKey(key);
+	
+	struct Bucket *bucket = table->buckets[hash];
+	
+	for (int idx = 0; idx < bucketCount; idx++) {
+		if (bucket->entries[idx] != NULL) {
+			if (strcmp(bucket->entries[idx]->word, key) == 0) {
+				entry = bucket->entries[idx];
 			}
 		}
+	}
+	return entry;
 }
 
 //diaplay assocaited word function
@@ -114,34 +112,4 @@ void hash_find_associated_word(struct HashTable *table, char *key) {
 	}
 	printf("\n");
 }
-
-struct associatedWord *hash_retrieve(struct HashTable *table, char *key){
-	
-	struct associatedWord *findWord = malloc(sizeof(struct associatedWord));
-	
-	int hash = hashKey(key);
-	
-	struct Bucket *bucket = table->buckets[hash];
-	
-	for (int i = 0; i < bucketCount; i++) {
-		if (bucket->entries[i] != NULL) {
-			if (strcmp(bucket->entries[i]->word, key) == 0) {
-				findWord = bucket->entries[i]->a;
-			}
-		}
-	}
-	return findWord;
-}
-
-
-
-
-
-
-
-
-
-
-
-
 

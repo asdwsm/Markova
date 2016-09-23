@@ -30,8 +30,8 @@ struct HashTable {
 };
 
 struct HashTable *create_hash_table(void);
-void hash_insert(struct HashTable *table, char *key, struct associatedWord *ass);
-struct associatedWord *hash_retrieve(struct HashTable *table, char *key);
+void hash_insert(struct HashTable *table, struct Entry *entry);
+struct Entry *hash_retrieve(struct HashTable *table, char *key);
 void hash_find_associated_word(struct HashTable *table, char *key);
 
 
