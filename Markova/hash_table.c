@@ -13,6 +13,7 @@
 
 const int bucketSize = 100;
 const int bucketCount = 100;
+const int associatedWordCount = 100;
 
 
 struct HashTable *create_hash_table(void) {
@@ -26,6 +27,7 @@ struct HashTable *create_hash_table(void) {
 		
 		struct Bucket *bucket = table->buckets[i];
 		bucket->entries = malloc(sizeof(struct Entry *) * bucketSize);
+		
 	}
 	
 	return table;
@@ -46,7 +48,7 @@ int hashKey(char *key) {
 }
 
 //insert function
-void hash_insert(struct HashTable *table, char *key, char *data) {
+void hash_insert(struct HashTable *table, char *key, struct associatedWord *assW) {
 	
 	int hash = hashKey(key);
 	
@@ -64,12 +66,13 @@ void hash_insert(struct HashTable *table, char *key, char *data) {
 	if (bucket->entries[loc] == NULL) {
 		struct Entry *entry = malloc(sizeof(struct Entry));
 		entry->word = key;
+		
 		//check if the data already exist
 		int find = 0;
 		for (int i = 0; i < 100; i++) {
 			if (entry->a[i] != NULL){
-				if (strcmp(entry->a[i]->word, data) == 0) {
-					entry->a[i]->numCount++;
+				if (strcmp(entry->a[i]->word, assW->word) == 0) {
+					entry->a[i]->numCount = entry->a[i]->numCount + assW->numCount;
 					find = 1;
 				}
 			}
@@ -79,10 +82,7 @@ void hash_insert(struct HashTable *table, char *key, char *data) {
 		if (find == 0) {
 			for (int i = 0; i < 100; i++) {
 				if (entry->a[i] == NULL) {
-					struct associatedWord *ass = malloc(sizeof(struct associatedWord));
-					entry->a[i] = ass;
-					entry->a[i]->word = data;
-					entry->a[i]->numCount++;
+					entry->a[i] = assW;
 					i = 100;
 				}
 			}
@@ -97,8 +97,8 @@ void hash_insert(struct HashTable *table, char *key, char *data) {
 		int find = 0;
 		for (int i = 0; i < 100; i++) {
 			if (bucket->entries[loc]->a[i] != NULL){
-				if (strcmp(bucket->entries[loc]->a[i]->word, data) == 0) {
-					bucket->entries[loc]->a[i]->numCount++;
+				if (strcmp(bucket->entries[loc]->a[i]->word, assW->word) == 0) {
+					bucket->entries[loc]->a[i]->numCount = bucket->entries[loc]->a[i]->numCount + assW->numCount;
 					find = 1;
 				}
 			}
@@ -108,10 +108,7 @@ void hash_insert(struct HashTable *table, char *key, char *data) {
 		if (find == 0) {
 			for (int i = 0; i < 100; i++) {
 				if (bucket->entries[loc]->a[i] == NULL) {
-					struct associatedWord *ass = malloc(sizeof(struct associatedWord));
-					bucket->entries[loc]->a[i] = ass;
-					bucket->entries[loc]->a[i]->word = data;
-					bucket->entries[loc]->a[i]->numCount++;
+					bucket->entries[loc]->a[i] = assW;
 					i = 100;
 				}
 			}
@@ -119,25 +116,27 @@ void hash_insert(struct HashTable *table, char *key, char *data) {
 	}
 }
 
-//retrieve function
-int hash_retrieve(struct HashTable *table, char *key) {
+//diaplay assocaited word function
+void hash_find_associated_word(struct HashTable *table, char *key) {
 	
 	int hash = hashKey(key);
 	
 	struct Bucket *bucket = table->buckets[hash];
 	
 	// find entry in bucket which matches key = word
+	printf("%s%s\n", "associated word for: ", key);
 	
-	void *find = NULL;
-	int result = 0;
 	for (int i = 0; i < bucketSize; i++) {
-		if(bucket->entries[i] != NULL){
-			if (strcmp(key, bucket->entries[i]->word) == 0) {
-				find = bucket->entries[i]->word;
-				result = 1;
+		if (bucket->entries[i] != NULL) {
+			if (strcmp(bucket->entries[i]->word, key) == 0) {
+				for (int j = 0; j < associatedWordCount; j++) {
+					if (bucket->entries[i]->a[j] != NULL) {
+						printf("%s%s%s%d\n", "Word: ", bucket->entries[i]->a[j]->word, "; Frequency: ", bucket->entries[i]->a[j]->numCount);
+					}
+				}
+				
 			}
 		}
 	}
-	return result;
-	//return find;
+	printf("\n");
 }
