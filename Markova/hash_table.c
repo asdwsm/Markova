@@ -68,25 +68,12 @@ void hash_insert(struct HashTable *table, char *key, struct associatedWord *assW
 		entry->word = key;
 		
 		//check if the data already exist
-		int find = 0;
-		for (int i = 0; i < 100; i++) {
-			if (entry->a[i] != NULL){
-				if (strcmp(entry->a[i]->word, assW->word) == 0) {
-					entry->a[i]->numCount = entry->a[i]->numCount + assW->numCount;
-					find = 1;
-				}
-			}
-		}
-		
-		//if not find
-		if (find == 0) {
 			for (int i = 0; i < 100; i++) {
-				if (entry->a[i] == NULL) {
+				if (entry->a[i] == NULL || strcmp(bucket->entries[loc]->a[i]->word, assW->word) == 0) {
 					entry->a[i] = assW;
 					i = 100;
 				}
 			}
-		}
 		bucket->entries[loc] = entry;
 		
 	}
@@ -94,26 +81,13 @@ void hash_insert(struct HashTable *table, char *key, struct associatedWord *assW
 	else {
 		bucket->entries[loc]->word = key;
 		//check if the data already exist
-		int find = 0;
-		for (int i = 0; i < 100; i++) {
-			if (bucket->entries[loc]->a[i] != NULL){
-				if (strcmp(bucket->entries[loc]->a[i]->word, assW->word) == 0) {
-					bucket->entries[loc]->a[i]->numCount = bucket->entries[loc]->a[i]->numCount + assW->numCount;
-					find = 1;
-				}
-			}
-		}
-		
-		//if not find
-		if (find == 0) {
 			for (int i = 0; i < 100; i++) {
-				if (bucket->entries[loc]->a[i] == NULL) {
+				if (bucket->entries[loc]->a[i] == NULL || strcmp(bucket->entries[loc]->a[i]->word, assW->word) == 0) {
 					bucket->entries[loc]->a[i] = assW;
 					i = 100;
 				}
 			}
 		}
-	}
 }
 
 //diaplay assocaited word function
@@ -140,3 +114,34 @@ void hash_find_associated_word(struct HashTable *table, char *key) {
 	}
 	printf("\n");
 }
+
+struct associatedWord *hash_retrieve(struct HashTable *table, char *key){
+	
+	struct associatedWord *findWord = malloc(sizeof(struct associatedWord));
+	
+	int hash = hashKey(key);
+	
+	struct Bucket *bucket = table->buckets[hash];
+	
+	for (int i = 0; i < bucketCount; i++) {
+		if (bucket->entries[i] != NULL) {
+			if (strcmp(bucket->entries[i]->word, key) == 0) {
+				findWord = bucket->entries[i]->a;
+			}
+		}
+	}
+	return findWord;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
