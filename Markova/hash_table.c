@@ -115,33 +115,21 @@ void hash_find_associated_word(struct HashTable *table, char *key) {
 	printf("\n");
 }
 
-struct associatedWord *hash_retrieve(struct HashTable *table, char *key){
+struct Entry *hash_retrieve(struct HashTable *table, char *key) {
 	
-	struct associatedWord *findWord = malloc(sizeof(struct associatedWord));
+	struct Entry *entry = NULL;
 	
 	int hash = hashKey(key);
 	
 	struct Bucket *bucket = table->buckets[hash];
 	
-	for (int i = 0; i < bucketCount; i++) {
-		if (bucket->entries[i] != NULL) {
-			if (strcmp(bucket->entries[i]->word, key) == 0) {
-				findWord = bucket->entries[i]->a;
-			}
+	int idx = 0;
+	while (bucket->entries[idx] != NULL) {
+		if (strcmp(bucket->entries[idx]->word, key) == 0) {
+			entry = bucket->entries[idx];
 		}
 	}
-	return findWord;
+
+	return entry;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
