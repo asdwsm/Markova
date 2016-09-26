@@ -11,7 +11,8 @@
 #include <string.h>
 #include "hash_table.h"
 
-const int bucketSize = 100;
+
+const int bucketSize = 200;
 const int bucketCount = 100;
 const int associatedWordCount = 100;
 
@@ -63,7 +64,7 @@ void hash_insert(struct HashTable *table, struct Entry *entry) {
 		loc++;
 	}
 
-	if (bucket->entries[loc] == NULL) {
+	if (bucket->entries[loc] == NULL || strcmp(bucket->entries[loc]->word, entry->word) == 0) {
 		bucket->entries[loc] = entry;
 	
 	}
@@ -86,6 +87,23 @@ struct Entry *hash_retrieve(struct HashTable *table, char *key){
 		}
 	}
 	return entry;
+}
+
+//add pairs to a current entry then readd it to the hash table
+void hash_readd(struct HashTable *table, struct Entry *entry){
+	
+	struct Entry *findEntry = hash_retrieve(table, entry->word);
+	int idx = 0;
+	while (entry->a[idx] != NULL) {
+		for (int loc = 0; loc < associatedWordCount; loc++) {
+			if (findEntry->a[loc] == NULL) {
+				findEntry->a[loc] = entry->a[idx];
+				break;
+			}
+		}
+		idx++;
+	}
+	
 }
 
 //diaplay assocaited word function
@@ -112,4 +130,50 @@ void hash_find_associated_word(struct HashTable *table, char *key) {
 	}
 	printf("\n");
 }
+
+//open a file and return a string of words
+char *parseFile(char *fileName){
+	
+	FILE *file = fopen(fileName, "r");
+	char *text;
+	if (file == NULL) {
+		printf("Error\n");
+	}
+	else{
+		while (!feof(file)) {
+			fgets(text, 100, file);
+			puts(text);
+		}
+	
+		fclose(file);
+	}
+	return text;
+}
+
+//divided the string into words based on space
+void load_data(char *filename){
+	char *text = parseFile(filename);
+	char *word = strtok(text, " ");
+	while (text != NULL) {
+		printf("%s\n", "Words in Text");
+		printf("%s\n", word);
+		word = strtok(NULL, " ");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
