@@ -103,7 +103,6 @@ int main(int argc, const char *argv[]) {
 //	test_hash_table();
 //	test_hash_function();
 	
-	parseFile("Test");
-	
+	parseFile("/Users/Tom/Desktop/Test.txt");
 	return 0;
 }

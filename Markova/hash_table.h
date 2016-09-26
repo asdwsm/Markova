@@ -34,7 +34,7 @@ void hash_insert(struct HashTable *table, struct Entry *entry);
 struct Entry *hash_retrieve(struct HashTable *table, char *key);
 void hash_find_associated_word(struct HashTable *table, char *key);
 void hash_readd(struct HashTable *table, struct Entry *entry);
-char *parseFile(char *fileName);
+char parseFile(char *fileName);
 void load_data(char *fileName);
 
 

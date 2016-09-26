@@ -131,34 +131,58 @@ void hash_find_associated_word(struct HashTable *table, char *key) {
 	printf("\n");
 }
 
+int create_word(int idx, char *oneLine){
+	char *word = malloc(sizeof(char));
+	int secondIdx = 0;
+	while (oneLine[idx] != '\n') {
+		if (oneLine[idx] == ' ') {
+			idx++;
+			break;
+		}
+		else{
+			word[secondIdx] = oneLine[idx];
+			secondIdx++;
+		}
+		idx++;
+	}
+	printf("Word: %s\n", word);
+	return idx;
+}
+
+
+
+
+
+
 //open a file and return a string of words
-char *parseFile(char *fileName){
+char parseFile(char *fileName){
 	
 	FILE *file = fopen(fileName, "r");
-	char *text;
+	char *oneLine = malloc(sizeof(char));
+//	char *word = malloc(sizeof(char));
+	
 	if (file == NULL) {
 		printf("Error\n");
 	}
 	else{
 		while (!feof(file)) {
-			fgets(text, 100, file);
-			puts(text);
-		}
-	
+			fgets(oneLine, 100, file);
+			printf("One line: %s", oneLine);
+			//we get one line
+			int idx = 0;
+			while (oneLine[idx] != '\n') {
+				idx = create_word(idx, oneLine);
+			}
+		}	
 		fclose(file);
 	}
-	return text;
+	return *oneLine;
 }
 
 //divided the string into words based on space
 void load_data(char *filename){
-	char *text = parseFile(filename);
-	char *word = strtok(text, " ");
-	while (text != NULL) {
-		printf("%s\n", "Words in Text");
-		printf("%s\n", word);
-		word = strtok(NULL, " ");
-	}
+	
+	
 }
 
 
