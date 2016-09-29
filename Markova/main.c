@@ -12,6 +12,75 @@
 #include <time.h>
 #include "hash_table.h"
 
+char *create_word(int *idx, char *oneLine){
+	char *word = malloc(sizeof(char) * 50);
+	int secondIdx = 0;
+	while (oneLine[*idx] != '\n') {
+		if (oneLine[*idx] == ' ') {
+			(*idx)++;
+			break;
+		}
+		else{
+			word[secondIdx] = oneLine[*idx];
+			secondIdx++;
+		}
+		(*idx)++;
+	}
+	printf("Word: %s\n", word);
+	return word;
+}
+
+struct Entry *create_entry(char *word, char *assWord){
+	struct Entry *entry = malloc(sizeof(struct Entry));
+	struct associatedWord *aWord = malloc(sizeof(struct associatedWord));
+	
+	entry->word = word;
+	aWord->word = assWord;
+	aWord->numCount = 1;
+	entry->a[0] = aWord;
+
+	return entry;
+}
+
+//open a file and load the hash table
+char parseFile(char *fileName, struct HashTable *table){
+	FILE *file = fopen(fileName, "r");
+	char *oneLine = malloc(sizeof(char) * 50);
+	if (file == NULL) {
+		printf("Error\n");
+	}
+	else{
+		while (!feof(file)) {
+			fgets(oneLine, 100, file);
+			//we get one line
+			int idx = 0;
+			while (oneLine[idx] != '\n') {
+				struct Entry *entry = malloc(sizeof(struct Entry));
+				entry = create_entry(create_word(&idx, oneLine), create_word(&idx, oneLine));
+//				printf("%s %s\n",entry->word, entry->a[0]->word);
+//				hash_insert(table, entry);
+				if (strcmp(hash_retrieve(table, entry->word)->word, "Error") != 0) {
+					hash_readd(table, entry);
+//					printf("readded\n");
+				}
+				else{
+					hash_insert(table, entry);
+//					printf("inserted");
+				}
+				
+			}
+		}
+		fclose(file);
+	}
+	return *oneLine;
+}
+
+//Load Data
+void load_data(){
+
+}
+
+
 char *randomString(int len) {
 	char *buf = malloc(sizeof(char) * (len + 1));
 	
@@ -103,6 +172,10 @@ int main(int argc, const char *argv[]) {
 //	test_hash_table();
 //	test_hash_function();
 	
-	parseFile("/Users/Tom/Desktop/Test.txt");
+	struct HashTable *table = create_hash_table();
+	parseFile("/Users/Tom/Desktop/Test.txt", table);
+	hash_find_associated_word(table, "GOOD");
+	hash_find_associated_word(table, "HI");
+//	hash_find_associated_word(table, "NICE");
 	return 0;
 }

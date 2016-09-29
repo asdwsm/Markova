@@ -74,6 +74,7 @@ void hash_insert(struct HashTable *table, struct Entry *entry) {
 struct Entry *hash_retrieve(struct HashTable *table, char *key){
 	
 	struct Entry *entry = malloc(sizeof(struct Entry));
+	entry->word = "Error";
 	
 	int hash = hashKey(key);
 	
@@ -99,6 +100,12 @@ void hash_readd(struct HashTable *table, struct Entry *entry){
 			if (findEntry->a[loc] == NULL) {
 				findEntry->a[loc] = entry->a[idx];
 				break;
+			}
+			else {
+				if (strcmp(findEntry->a[loc]->word, entry->a[idx]->word) == 0) {
+					findEntry->a[loc]->numCount++;
+					break;
+				}
 			}
 		}
 		idx++;
@@ -129,60 +136,6 @@ void hash_find_associated_word(struct HashTable *table, char *key) {
 		}
 	}
 	printf("\n");
-}
-
-int create_word(int idx, char *oneLine){
-	char *word = malloc(sizeof(char));
-	int secondIdx = 0;
-	while (oneLine[idx] != '\n') {
-		if (oneLine[idx] == ' ') {
-			idx++;
-			break;
-		}
-		else{
-			word[secondIdx] = oneLine[idx];
-			secondIdx++;
-		}
-		idx++;
-	}
-	printf("Word: %s\n", word);
-	return idx;
-}
-
-
-
-
-
-
-//open a file and return a string of words
-char parseFile(char *fileName){
-	
-	FILE *file = fopen(fileName, "r");
-	char *oneLine = malloc(sizeof(char));
-//	char *word = malloc(sizeof(char));
-	
-	if (file == NULL) {
-		printf("Error\n");
-	}
-	else{
-		while (!feof(file)) {
-			fgets(oneLine, 100, file);
-			printf("One line: %s", oneLine);
-			//we get one line
-			int idx = 0;
-			while (oneLine[idx] != '\n') {
-				idx = create_word(idx, oneLine);
-			}
-		}	
-		fclose(file);
-	}
-	return *oneLine;
-}
-
-//divided the string into words based on space
-void load_data(char *filename){
-	
-	
 }
 
 

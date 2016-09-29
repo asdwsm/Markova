@@ -14,6 +14,7 @@
 struct associatedWord {
 	char *word;
 	int numCount;
+	int periodCount;
 };
 
 struct Entry {
@@ -34,8 +35,5 @@ void hash_insert(struct HashTable *table, struct Entry *entry);
 struct Entry *hash_retrieve(struct HashTable *table, char *key);
 void hash_find_associated_word(struct HashTable *table, char *key);
 void hash_readd(struct HashTable *table, struct Entry *entry);
-char parseFile(char *fileName);
-void load_data(char *fileName);
-
 
 #endif /* hash_table_h */
