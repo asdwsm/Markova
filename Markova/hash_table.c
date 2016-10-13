@@ -104,6 +104,17 @@ void hash_readd(struct HashTable *table, struct Entry *entry){
 			else {
 				if (strcmp(findEntry->a[loc]->word, entry->a[idx]->word) == 0) {
 					findEntry->a[loc]->numCount++;
+					int hasPeriod = 0;
+					for (int i = 0; i < 50; i++) {
+						if (entry->a[idx]->word[i] == '.') {
+							entry->a[idx]->word[i] = NULL;
+							hasPeriod = 1;
+						}
+						if (hasPeriod == 1) {
+							findEntry->a[loc]->periodCount++;
+						}
+
+					}
 					break;
 				}
 			}
@@ -128,7 +139,7 @@ void hash_find_associated_word(struct HashTable *table, char *key) {
 			if (strcmp(bucket->entries[i]->word, key) == 0) {
 				for (int j = 0; j < associatedWordCount; j++) {
 					if (bucket->entries[i]->a[j] != NULL) {
-						printf("%s%s%s%d\n", "Word: ", bucket->entries[i]->a[j]->word, "; Frequency: ", bucket->entries[i]->a[j]->numCount);
+						printf("%s%s%s%d%s%d\n", "Word: ", bucket->entries[i]->a[j]->word, "; Frequency: ", bucket->entries[i]->a[j]->numCount, "; Periods: ", bucket->entries[i]->a[j]->periodCount);
 					}
 				}
 				

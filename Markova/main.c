@@ -12,10 +12,12 @@
 #include <time.h>
 #include "hash_table.h"
 
+int bufferSize = 128;
+
 char *create_word(int *idx, char *oneLine){
 	char *word = malloc(sizeof(char) * 50);
 	int secondIdx = 0;
-	while (oneLine[*idx] != '\n') {
+	while (*idx < bufferSize) {
 		if (oneLine[*idx] == ' ') {
 			(*idx)++;
 			break;
@@ -33,10 +35,19 @@ char *create_word(int *idx, char *oneLine){
 struct Entry *create_entry(char *word, char *assWord){
 	struct Entry *entry = malloc(sizeof(struct Entry));
 	struct associatedWord *aWord = malloc(sizeof(struct associatedWord));
-	
+	int hasPeriod = 0;
+	for (int i = 0; i < 50; i++) {
+		if (assWord[i] == '.') {
+			assWord[i] = NULL;
+			hasPeriod = 1;
+		}
+	}
 	entry->word = word;
 	aWord->word = assWord;
 	aWord->numCount = 1;
+	if (hasPeriod == 1) {
+		aWord->periodCount = 1;
+	}
 	entry->a[0] = aWord;
 
 	return entry;
@@ -45,34 +56,42 @@ struct Entry *create_entry(char *word, char *assWord){
 //open a file and load the hash table
 char parseFile(char *fileName, struct HashTable *table){
 	FILE *file = fopen(fileName, "r");
-	char *oneLine = malloc(sizeof(char) * 50);
+	char buff[bufferSize];
 	if (file == NULL) {
 		printf("Error\n");
 	}
 	else{
 		while (!feof(file)) {
-			fgets(oneLine, 100, file);
-			//we get one line
+			fread(buff, bufferSize, 1, file);
+			//we get a buffer
 			int idx = 0;
-			while (oneLine[idx] != '\n') {
-				struct Entry *entry = malloc(sizeof(struct Entry));
-				entry = create_entry(create_word(&idx, oneLine), create_word(&idx, oneLine));
-//				printf("%s %s\n",entry->word, entry->a[0]->word);
-//				hash_insert(table, entry);
-				if (strcmp(hash_retrieve(table, entry->word)->word, "Error") != 0) {
-					hash_readd(table, entry);
-//					printf("readded\n");
+			while (idx < bufferSize) {
+				struct Entry *entry1 = malloc(sizeof(struct Entry));
+				struct Entry *entry2 = malloc(sizeof(struct Entry));
+				
+				char *word1 = create_word(&idx, buff);
+				char *word2 = create_word(&idx, buff);
+				
+				entry1 = create_entry(word1, word2);
+				entry2 = create_entry(word2, create_word(&idx, buff));
+				if (strcmp(hash_retrieve(table, entry1->word)->word, "Error") != 0) {
+					hash_readd(table, entry1);
 				}
 				else{
-					hash_insert(table, entry);
-//					printf("inserted");
+					hash_insert(table, entry1);
 				}
-				
+				if (strcmp(hash_retrieve(table, entry2->word)->word, "Error") != 0) {
+					hash_readd(table, entry2);
+				}
+				else{
+					hash_insert(table, entry2);
+				}
+
 			}
 		}
 		fclose(file);
 	}
-	return *oneLine;
+	return buff;
 }
 
 //Load Data
@@ -94,31 +113,9 @@ char *randomString(int len) {
 
 void test_hash_table(){
 	
-	struct HashTable *table = create_hash_table();
+//	struct HashTable *table = create_hash_table();
 	
 	//create one entry
-	struct Entry *entryX = malloc(sizeof(struct Entry));
-	entryX->word = "hello";
-	struct associatedWord *aWord = malloc(sizeof(struct associatedWord));
-	aWord->word = "Max";
-	aWord->numCount = 2;
-	entryX->a[0] = aWord;
-	
-	struct Entry *entryY = malloc(sizeof(struct Entry));
-	entryY->word = "hello";
-	struct associatedWord *aWord1 = malloc(sizeof(struct associatedWord));
-	aWord1->word = "Tom";
-	aWord1->numCount = 2;
-	entryY->a[0] = aWord1;
-	struct associatedWord *aWord2 = malloc(sizeof(struct associatedWord));
-	aWord2->word = "Taylor";
-	aWord2->numCount = 2;
-	entryY->a[1] = aWord2;
-	
-	
-	hash_insert(table, entryX);
-	hash_readd(table, entryY);
-	
 //	//create ramdom entries
 //	clock_t begin = clock();
 //	for (int i = 0 ; i < 10000; i++) {
@@ -140,16 +137,16 @@ void test_hash_table(){
 //	
 //	printf("%s %f\n","Inserting one entry:", (double)(nextInsertEnd - nextInsertBegin)/CLOCKS_PER_SEC);
 //	
-	struct Entry *find = malloc(sizeof(struct Entry));
+	//struct Entry *find = malloc(sizeof(struct Entry));
 //	
 //	clock_t retrieveBegin = clock();
-	find = hash_retrieve(table, entryX->word);
+	//find = hash_retrieve(table, entryX->word);
 //	clock_t retrieveEnd = clock();
 //	
 //	printf("%s %f\n","Retrieve an Entry:", (double)(retrieveEnd - retrieveBegin)/CLOCKS_PER_SEC);
 	
-	printf("%s\n", find->a[2]->word);
-	hash_find_associated_word(table, entryX->word);
+	//printf("%s\n", find->a[2]->word);
+	//hash_find_associated_word(table, entryX->word);
 	
 }
 
@@ -174,8 +171,6 @@ int main(int argc, const char *argv[]) {
 	
 	struct HashTable *table = create_hash_table();
 	parseFile("/Users/Tom/Desktop/Test.txt", table);
-	hash_find_associated_word(table, "GOOD");
-	hash_find_associated_word(table, "HI");
-//	hash_find_associated_word(table, "NICE");
+	hash_find_associated_word(table, "large");
 	return 0;
 }
