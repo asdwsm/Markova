@@ -100,7 +100,7 @@ char *getWordFromBufferAndRemove(char *buf) {
 				ret = malloc(sizeof(char) * goodLen);
 				strncpy(ret, buf + startIndex, goodLen);
 				
-				memmove(buf, buf + goodLen + startIndex, strlen(buf) - (goodLen + startIndex));
+				memmove(buf, buf + goodLen + startIndex + 1, strlen(buf) - (goodLen + startIndex));
 				break;
 			} else {
 				startIndex++;
@@ -114,25 +114,29 @@ char *getWordFromBufferAndRemove(char *buf) {
 //open a file and load the hash table
 void parseFile(char *fileName, struct HashTable *table){
 	FILE *file = fopen(fileName, "r");
-	char buff[bufferSize];
+	
 	if (file == NULL) {
 		printf("Error\n");
 		return;
 	}
 	
-	int idx = 0;
+	unsigned int idx = 0;
+	
+	const int movingBufSize = 1024;;
+	char *movingBuf = malloc(sizeof(char) * (movingBufSize + 1));
+	
+	movingBuf[movingBufSize + 1] = '\0';
+	
 	while (!feof(file)) {
-		
-		const int movingBufSize = 1024;
-		
-		char *movingBuf = malloc(sizeof(char) * (movingBufSize + 1));
-		fread(movingBuf + idx, movingBufSize - idx, 1, file);
-		movingBuf[movingBufSize + 1] = '\0';
+		size_t read = fread(movingBuf + idx, sizeof(char), movingBufSize - idx, file);
+		printf("read %zd\r\n", read);
+
 		
 		char *firstWord = NULL;
 		
 		while ((firstWord = getWordFromBufferAndRemove(movingBuf))) {
 			char *secondWord = getWordFromBufferAndRemove(movingBuf);
+			if (!secondWord) break;
 			
 			printf("[%s][%s]", firstWord, secondWord);
 			
@@ -141,35 +145,37 @@ void parseFile(char *fileName, struct HashTable *table){
 			
 			
 		}
+		
+		idx = (unsigned int)strlen(movingBuf);
 
 
 		continue;
 		
-		//we get a buffer
-		int idx = 0;
-		while (idx < bufferSize) {
-			struct Entry *entry1 = malloc(sizeof(struct Entry));
-			struct Entry *entry2 = malloc(sizeof(struct Entry));
-			
-			char *word1 = create_word(&idx, buff);
-			char *word2 = create_word(&idx, buff);
-			
-			entry1 = create_entry(word1, word2);
-			entry2 = create_entry(word2, create_word(&idx, buff));
-			if (strcmp(hash_retrieve(table, entry1->word)->word, "Error") != 0) {
-				hash_readd(table, entry1);
-			}
-			else{
-				hash_insert(table, entry1);
-			}
-			if (strcmp(hash_retrieve(table, entry2->word)->word, "Error") != 0) {
-				hash_readd(table, entry2);
-			}
-			else{
-				hash_insert(table, entry2);
-			}
-			
-		}
+//		//we get a buffer
+//		int idx = 0;
+//		while (idx < bufferSize) {
+//			struct Entry *entry1 = malloc(sizeof(struct Entry));
+//			struct Entry *entry2 = malloc(sizeof(struct Entry));
+//			
+//			char *word1 = create_word(&idx, buff);
+//			char *word2 = create_word(&idx, buff);
+//			
+//			entry1 = create_entry(word1, word2);
+//			entry2 = create_entry(word2, create_word(&idx, buff));
+//			if (strcmp(hash_retrieve(table, entry1->word)->word, "Error") != 0) {
+//				hash_readd(table, entry1);
+//			}
+//			else{
+//				hash_insert(table, entry1);
+//			}
+//			if (strcmp(hash_retrieve(table, entry2->word)->word, "Error") != 0) {
+//				hash_readd(table, entry2);
+//			}
+//			else{
+//				hash_insert(table, entry2);
+//			}
+//			
+//		}
 	}
 	fclose(file);
 }
