@@ -49,54 +49,135 @@ struct Entry *create_entry(char *word, char *assWord){
 		aWord->periodCount = 1;
 	}
 	entry->a[0] = aWord;
-
+	
 	return entry;
 }
 
+_Bool isWordTerminatingCharacter(char c) {
+	switch (c) {
+		case '?':
+			return 1;
+		case '.':
+			return 1;
+		case ' ':
+			return 1;
+		case '\t':
+			return 1;
+		case '\r':
+			return 1;
+		case '\n':
+			return 1;
+		case ',':
+			return 1;
+	}
+	return 0;
+}
+
+char *getWordFromBufferAndRemove(char *buf) {
+	
+	/*
+	 * Case: "  hello  how\t are    you"
+	 * Only want: "hello"->"how", "how"->"are", "are"->"you", etc
+	 */
+	
+	/*
+	 * Use periods as associated words; Makes things easier.
+	 * i.e. "How are you?" becomes "are"->"you" and "you"->"?"
+	 */
+	
+	int goodLen = 0;
+	int startIndex = 0;
+	
+	char *ret = NULL;
+	
+	for (int i = 0; i < strlen(buf); i++) {
+		if (!isWordTerminatingCharacter(buf[i])) {
+			goodLen++;
+		}
+		else {
+			if (goodLen > 0) {
+				// this is a valid word.
+				ret = malloc(sizeof(char) * goodLen);
+				strncpy(ret, buf + startIndex, goodLen);
+				
+				memmove(buf, buf + goodLen + startIndex, strlen(buf) - (goodLen + startIndex));
+				break;
+			} else {
+				startIndex++;
+			}
+		}
+	}
+	
+	return ret;
+}
+
 //open a file and load the hash table
-char parseFile(char *fileName, struct HashTable *table){
+void parseFile(char *fileName, struct HashTable *table){
 	FILE *file = fopen(fileName, "r");
 	char buff[bufferSize];
 	if (file == NULL) {
 		printf("Error\n");
+		return;
 	}
-	else{
-		while (!feof(file)) {
-			fread(buff, bufferSize, 1, file);
-			//we get a buffer
-			int idx = 0;
-			while (idx < bufferSize) {
-				struct Entry *entry1 = malloc(sizeof(struct Entry));
-				struct Entry *entry2 = malloc(sizeof(struct Entry));
-				
-				char *word1 = create_word(&idx, buff);
-				char *word2 = create_word(&idx, buff);
-				
-				entry1 = create_entry(word1, word2);
-				entry2 = create_entry(word2, create_word(&idx, buff));
-				if (strcmp(hash_retrieve(table, entry1->word)->word, "Error") != 0) {
-					hash_readd(table, entry1);
-				}
-				else{
-					hash_insert(table, entry1);
-				}
-				if (strcmp(hash_retrieve(table, entry2->word)->word, "Error") != 0) {
-					hash_readd(table, entry2);
-				}
-				else{
-					hash_insert(table, entry2);
-				}
-
-			}
+	
+	int idx = 0;
+	while (!feof(file)) {
+		
+		const int movingBufSize = 1024;
+		
+		char *movingBuf = malloc(sizeof(char) * (movingBufSize + 1));
+		fread(movingBuf + idx, movingBufSize - idx, 1, file);
+		movingBuf[movingBufSize + 1] = '\0';
+		
+		char *firstWord = NULL;
+		
+		while ((firstWord = getWordFromBufferAndRemove(movingBuf))) {
+			char *secondWord = getWordFromBufferAndRemove(movingBuf);
+			
+			printf("[%s][%s]", firstWord, secondWord);
+			
+			// need to insert these words into the database;
+			// may need to create thirdWord
+			
+			
 		}
-		fclose(file);
+
+
+		continue;
+		
+		//we get a buffer
+		int idx = 0;
+		while (idx < bufferSize) {
+			struct Entry *entry1 = malloc(sizeof(struct Entry));
+			struct Entry *entry2 = malloc(sizeof(struct Entry));
+			
+			char *word1 = create_word(&idx, buff);
+			char *word2 = create_word(&idx, buff);
+			
+			entry1 = create_entry(word1, word2);
+			entry2 = create_entry(word2, create_word(&idx, buff));
+			if (strcmp(hash_retrieve(table, entry1->word)->word, "Error") != 0) {
+				hash_readd(table, entry1);
+			}
+			else{
+				hash_insert(table, entry1);
+			}
+			if (strcmp(hash_retrieve(table, entry2->word)->word, "Error") != 0) {
+				hash_readd(table, entry2);
+			}
+			else{
+				hash_insert(table, entry2);
+			}
+			
+		}
 	}
-	return buff;
+	fclose(file);
 }
 
 //Load Data
-void load_data(){
-
+void load_data(struct HashTable *table) {
+	
+	parseFile("/Users/max/Desktop/p/Markova/datas/data0", table);
 }
 
 
@@ -111,39 +192,39 @@ char *randomString(int len) {
 	return buf;
 }
 
-void test_hash_table(){
+void test_hash_table() {
 	
-//	struct HashTable *table = create_hash_table();
+	//	struct HashTable *table = create_hash_table();
 	
 	//create one entry
-//	//create ramdom entries
-//	clock_t begin = clock();
-//	for (int i = 0 ; i < 10000; i++) {
-//		struct Entry *entry = malloc(sizeof(struct Entry));
-//		entry->word = randomString(5);
-//		struct associatedWord *newWord = malloc(sizeof(struct associatedWord));
-//		newWord->word = randomString(5);
-//		newWord->numCount = 1;
-//		entry->a[0] = newWord;
-//		hash_insert(table, entry);
-//	}
-//	clock_t end = clock();
-//	
-//	printf("%s %f\n","Inserting a lot of entries:", (double)(end - begin)/CLOCKS_PER_SEC);
-//	
-//	clock_t nextInsertBegin = clock();
-//	hash_insert(table, entryX);
-//	clock_t nextInsertEnd = clock();
-//	
-//	printf("%s %f\n","Inserting one entry:", (double)(nextInsertEnd - nextInsertBegin)/CLOCKS_PER_SEC);
-//	
+	//	//create ramdom entries
+	//	clock_t begin = clock();
+	//	for (int i = 0 ; i < 10000; i++) {
+	//		struct Entry *entry = malloc(sizeof(struct Entry));
+	//		entry->word = randomString(5);
+	//		struct associatedWord *newWord = malloc(sizeof(struct associatedWord));
+	//		newWord->word = randomString(5);
+	//		newWord->numCount = 1;
+	//		entry->a[0] = newWord;
+	//		hash_insert(table, entry);
+	//	}
+	//	clock_t end = clock();
+	//
+	//	printf("%s %f\n","Inserting a lot of entries:", (double)(end - begin)/CLOCKS_PER_SEC);
+	//
+	//	clock_t nextInsertBegin = clock();
+	//	hash_insert(table, entryX);
+	//	clock_t nextInsertEnd = clock();
+	//
+	//	printf("%s %f\n","Inserting one entry:", (double)(nextInsertEnd - nextInsertBegin)/CLOCKS_PER_SEC);
+	//
 	//struct Entry *find = malloc(sizeof(struct Entry));
-//	
-//	clock_t retrieveBegin = clock();
+	//
+	//	clock_t retrieveBegin = clock();
 	//find = hash_retrieve(table, entryX->word);
-//	clock_t retrieveEnd = clock();
-//	
-//	printf("%s %f\n","Retrieve an Entry:", (double)(retrieveEnd - retrieveBegin)/CLOCKS_PER_SEC);
+	//	clock_t retrieveEnd = clock();
+	//
+	//	printf("%s %f\n","Retrieve an Entry:", (double)(retrieveEnd - retrieveBegin)/CLOCKS_PER_SEC);
 	
 	//printf("%s\n", find->a[2]->word);
 	//hash_find_associated_word(table, entryX->word);
@@ -157,7 +238,7 @@ void test_hash_function() {
 		char *randString = randomString(arc4random_uniform(15));
 		sum += hashKey(randString);
 		free(randString);
-	
+		
 	}
 	
 	//printf("avg: %d\r\n", sum / 1000);
@@ -166,11 +247,11 @@ void test_hash_function() {
 
 
 int main(int argc, const char *argv[]) {
-//	test_hash_table();
-//	test_hash_function();
+	//	test_hash_table();
+	//	test_hash_function();
 	
 	struct HashTable *table = create_hash_table();
-	parseFile("/Users/Tom/Desktop/Test.txt", table);
+	load_data(table);
 	hash_find_associated_word(table, "large");
 	return 0;
 }
