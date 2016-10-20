@@ -12,47 +12,6 @@
 #include <time.h>
 #include "hash_table.h"
 
-int bufferSize = 128;
-
-char *create_word(int *idx, char *oneLine){
-	char *word = malloc(sizeof(char) * 50);
-	int secondIdx = 0;
-	while (*idx < bufferSize) {
-		if (oneLine[*idx] == ' ') {
-			(*idx)++;
-			break;
-		}
-		else{
-			word[secondIdx] = oneLine[*idx];
-			secondIdx++;
-		}
-		(*idx)++;
-	}
-	printf("Word: %s\n", word);
-	return word;
-}
-
-struct Entry *create_entry(char *word, char *assWord){
-	struct Entry *entry = malloc(sizeof(struct Entry));
-	struct associatedWord *aWord = malloc(sizeof(struct associatedWord));
-	int hasPeriod = 0;
-	for (int i = 0; i < 50; i++) {
-		if (assWord[i] == '.') {
-			assWord[i] = NULL;
-			hasPeriod = 1;
-		}
-	}
-	entry->word = word;
-	aWord->word = assWord;
-	aWord->numCount = 1;
-	if (hasPeriod == 1) {
-		aWord->periodCount = 1;
-	}
-	entry->a[0] = aWord;
-	
-	return entry;
-}
-
 _Bool isWordTerminatingCharacter(char c) {
 	switch (c) {
 		case '?':
@@ -91,6 +50,10 @@ char *getWordFromBufferAndRemove(char *buf) {
 	char *ret = NULL;
 	
 	for (int i = 0; i < strlen(buf); i++) {
+		if (buf[i] == '\0') {
+			return NULL;
+		}
+		
 		if (!isWordTerminatingCharacter(buf[i])) {
 			goodLen++;
 		}
@@ -111,6 +74,15 @@ char *getWordFromBufferAndRemove(char *buf) {
 	return ret;
 }
 
+void create_word_and_insert(char *word, struct HashTable *table) {
+	// creates new Entry and inserts into hash table
+}
+
+void insert_associated_word(char *associatedWord, struct Entry *entry, struct HashTable *table) {
+	// if entry doesn't have associatedWord yet, add it;
+	// otherwise, increment the counter with it.
+}
+
 //open a file and load the hash table
 void parseFile(char *fileName, struct HashTable *table){
 	FILE *file = fopen(fileName, "r");
@@ -128,61 +100,39 @@ void parseFile(char *fileName, struct HashTable *table){
 	movingBuf[movingBufSize + 1] = '\0';
 	
 	while (!feof(file)) {
+		
 		size_t read = fread(movingBuf + idx, sizeof(char), movingBufSize - idx, file);
-		printf("read %zd\r\n", read);
-
 		
-		char *firstWord = NULL;
+		if (read == 0) {
+			// no data read; i guess file is over;
+			break;
+		}
 		
-		while ((firstWord = getWordFromBufferAndRemove(movingBuf))) {
+		char *firstWord = getWordFromBufferAndRemove(movingBuf);
+		
+		while ((firstWord)) {
 			char *secondWord = getWordFromBufferAndRemove(movingBuf);
 			if (!secondWord) break;
 			
-			printf("[%s][%s]", firstWord, secondWord);
+			struct Entry *firstWordEntry = hash_retrieve(table, firstWord);
 			
-			// need to insert these words into the database;
-			// may need to create thirdWord
+			if (!firstWordEntry) {
+				create_word_and_insert(firstWord, table);
+			}
+
+			insert_associated_word(secondWord, firstWordEntry, table);
 			
-			
+			firstWord = secondWord;
 		}
 		
 		idx = (unsigned int)strlen(movingBuf);
-
-
-		continue;
-		
-//		//we get a buffer
-//		int idx = 0;
-//		while (idx < bufferSize) {
-//			struct Entry *entry1 = malloc(sizeof(struct Entry));
-//			struct Entry *entry2 = malloc(sizeof(struct Entry));
-//			
-//			char *word1 = create_word(&idx, buff);
-//			char *word2 = create_word(&idx, buff);
-//			
-//			entry1 = create_entry(word1, word2);
-//			entry2 = create_entry(word2, create_word(&idx, buff));
-//			if (strcmp(hash_retrieve(table, entry1->word)->word, "Error") != 0) {
-//				hash_readd(table, entry1);
-//			}
-//			else{
-//				hash_insert(table, entry1);
-//			}
-//			if (strcmp(hash_retrieve(table, entry2->word)->word, "Error") != 0) {
-//				hash_readd(table, entry2);
-//			}
-//			else{
-//				hash_insert(table, entry2);
-//			}
-//			
-//		}
 	}
+	
 	fclose(file);
 }
 
 //Load Data
 void load_data(struct HashTable *table) {
-	
 	parseFile("/Users/max/Desktop/p/Markova/datas/data0", table);
 }
 
@@ -237,18 +187,15 @@ void test_hash_table() {
 	
 }
 
-void test_hash_function() {
-	int sum = 0;
-	
-	for (int i = 0; i < 1000; i++) {
-		char *randString = randomString(arc4random_uniform(15));
-		sum += hashKey(randString);
-		free(randString);
-		
-	}
-	
-	//printf("avg: %d\r\n", sum / 1000);
-	//should be around 50, which is pretty good.
+void generate_sentence_with_start(char *word, struct HashTable *table) {
+	// Look up the starting word in the hash table
+	// Generate a random number to pick an associated word based on how frequently
+	// it occurs out of all of the associated words;
+	// I.e. if you have "are" => 3, "you" => 5, "with" => 12,
+	// and you generate a random number between [0, 3/(3 + 5 + 12)), then "are" is picked.
+	// then you use "are" and repeat the process.
+	// If you get a number between (3/(3+5+12), 3/(3+5+12) + 5/(3+5+12))], then "you" is picked
+	// If you get a number between (3/(3+5+12) + 5/(3+5+12), 1], then "with" is picked.
 }
 
 
@@ -259,5 +206,8 @@ int main(int argc, const char *argv[]) {
 	struct HashTable *table = create_hash_table();
 	load_data(table);
 	hash_find_associated_word(table, "large");
+	
+	generate_sentence_with_start("How", table);
+	
 	return 0;
 }
