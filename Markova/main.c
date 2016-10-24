@@ -74,13 +74,24 @@ char *getWordFromBufferAndRemove(char *buf) {
 	return ret;
 }
 
-void create_word_and_insert(char *word, struct HashTable *table) {
+void create_word_and_insert(struct Entry *firstWordEntry, struct HashTable *table) {
 	// creates new Entry and inserts into hash table
+	hash_insert(table, firstWordEntry);
 }
 
 void insert_associated_word(char *associatedWord, struct Entry *entry, struct HashTable *table) {
 	// if entry doesn't have associatedWord yet, add it;
 	// otherwise, increment the counter with it.
+	struct associatedWord *newAssociatedWord = malloc(sizeof(struct associatedWord));
+	newAssociatedWord->word = associatedWord;
+	newAssociatedWord->numCount = 1;
+	
+	for (int i = 0; i < 100; i++) {
+		if (entry->a[i] == NULL) {
+			entry->a[i] = newAssociatedWord;
+			break;
+		}
+	}
 }
 
 //open a file and load the hash table
@@ -117,9 +128,12 @@ void parseFile(char *fileName, struct HashTable *table){
 			struct Entry *firstWordEntry = hash_retrieve(table, firstWord);
 			
 			if (!firstWordEntry) {
-				create_word_and_insert(firstWord, table);
+				firstWordEntry = malloc(sizeof(struct Entry));
+				firstWordEntry->word = firstWord;
+				hash_insert(table, firstWordEntry);
+				//create_word_and_insert(firstWordEntry, table);
 			}
-
+			
 			insert_associated_word(secondWord, firstWordEntry, table);
 			
 			firstWord = secondWord;
@@ -133,7 +147,7 @@ void parseFile(char *fileName, struct HashTable *table){
 
 //Load Data
 void load_data(struct HashTable *table) {
-	parseFile("/Users/max/Desktop/p/Markova/datas/data0", table);
+	parseFile("/Users/Tom/Desktop/Test.txt", table);
 }
 
 
@@ -196,6 +210,61 @@ void generate_sentence_with_start(char *word, struct HashTable *table) {
 	// then you use "are" and repeat the process.
 	// If you get a number between (3/(3+5+12), 3/(3+5+12) + 5/(3+5+12))], then "you" is picked
 	// If you get a number between (3/(3+5+12) + 5/(3+5+12), 1], then "with" is picked.
+	struct Entry *retrievedEntry;
+	float randomNum = 0.0;
+	int index = 0;
+	float sum = 0.0;
+	float associatedWordCount = 0.0;
+	int insertCounting = 0;
+	char *nextWord = word;
+	
+	while (nextWord != NULL) {
+		retrievedEntry = hash_retrieve(table, nextWord);
+		if (retrievedEntry == NULL) {
+			break;
+		}
+		int frequency[100];
+		char *allWords[100];
+		index = 0;
+		associatedWordCount = 0;
+		sum = 0.0;
+		insertCounting = 0;
+		
+		while (retrievedEntry->a[index] != NULL) {
+			sum +=retrievedEntry->a[index]->numCount;
+			associatedWordCount++;
+			frequency[insertCounting] = retrievedEntry->a[index]->numCount;
+			allWords[insertCounting] = retrievedEntry->a[index]->word;
+			insertCounting++;
+			index++;
+		}
+		
+		randomNum = (float)rand()/(float)(RAND_MAX/(sum/associatedWordCount));
+		
+		int closeFrequencyIndex = 0;
+		int closedFrequency = frequency[closeFrequencyIndex];
+		
+		for (int i = 0; i < associatedWordCount; i++){
+			if (fabs((frequency[i]/associatedWordCount) - randomNum) == fabs((closedFrequency/associatedWordCount) - randomNum)) {
+				int x = rand() % 2;
+				//printf("Choose is: %d\n", x);
+				if (x == 0) {
+				} else {
+					closedFrequency = frequency[i];
+					closeFrequencyIndex = i;
+				}
+			} else if (fabs((frequency[i]/associatedWordCount) - randomNum) < fabs((closedFrequency/associatedWordCount) - randomNum)) {
+				closedFrequency = frequency[i];
+				closeFrequencyIndex = i;
+			}
+		}
+		
+		printf("%s ", allWords[closeFrequencyIndex]);
+		nextWord = allWords[closeFrequencyIndex];
+		
+	}
+	
+	
 }
 
 
@@ -205,9 +274,9 @@ int main(int argc, const char *argv[]) {
 	
 	struct HashTable *table = create_hash_table();
 	load_data(table);
-	hash_find_associated_word(table, "large");
+	hash_find_associated_word(table, "for");
 	
-	generate_sentence_with_start("How", table);
+	generate_sentence_with_start("the", table);
 	
 	return 0;
 }

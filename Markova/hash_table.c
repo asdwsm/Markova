@@ -73,8 +73,7 @@ void hash_insert(struct HashTable *table, struct Entry *entry) {
 //retrieve function
 struct Entry *hash_retrieve(struct HashTable *table, char *key){
 	
-	struct Entry *entry = malloc(sizeof(struct Entry));
-	entry->word = "Error";
+	//struct Entry *entry = malloc(sizeof(struct Entry));
 	
 	int hash = hashKey(key);
 	
@@ -83,11 +82,11 @@ struct Entry *hash_retrieve(struct HashTable *table, char *key){
 	for (int idx = 0; idx < bucketCount; idx++) {
 		if (bucket->entries[idx] != NULL) {
 			if (strcmp(bucket->entries[idx]->word, key) == 0) {
-				entry = bucket->entries[idx];
+				return bucket->entries[idx];
 			}
 		}
 	}
-	return entry;
+	return NULL;
 }
 
 //add pairs to a current entry then readd it to the hash table
