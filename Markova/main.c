@@ -74,9 +74,12 @@ char *getWordFromBufferAndRemove(char *buf) {
 	return ret;
 }
 
-void create_word_and_insert(struct Entry *firstWordEntry, struct HashTable *table) {
+struct Entry *create_word_and_insert(char *word, struct HashTable *table) {
 	// creates new Entry and inserts into hash table
+	struct Entry *firstWordEntry = malloc(sizeof(struct Entry));
+	firstWordEntry->word = word;
 	hash_insert(table, firstWordEntry);
+	return firstWordEntry;
 }
 
 void insert_associated_word(char *associatedWord, struct Entry *entry, struct HashTable *table) {
@@ -128,10 +131,7 @@ void parseFile(char *fileName, struct HashTable *table){
 			struct Entry *firstWordEntry = hash_retrieve(table, firstWord);
 			
 			if (!firstWordEntry) {
-				firstWordEntry = malloc(sizeof(struct Entry));
-				firstWordEntry->word = firstWord;
-				hash_insert(table, firstWordEntry);
-				//create_word_and_insert(firstWordEntry, table);
+				firstWordEntry = create_word_and_insert(firstWord, table);
 			}
 			
 			insert_associated_word(secondWord, firstWordEntry, table);
@@ -147,7 +147,7 @@ void parseFile(char *fileName, struct HashTable *table){
 
 //Load Data
 void load_data(struct HashTable *table) {
-	parseFile("/Users/Tom/Desktop/Test.txt", table);
+	parseFile("/Users/max/Desktop/p/Markova/datas/data0", table);
 }
 
 
